@@ -16,7 +16,6 @@ export async function createTicket(ticketData) {
       summary: ticketData.summary || 'Novo ticket do Medcontrol',
       description: ticketData.description || '',
       issuetype: { name: 'Task' },
-      // Adicione outros campos conforme necessário
     }
   };
 
