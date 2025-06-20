@@ -32,24 +32,21 @@ export default async function handler(req, res) {
       console.log('Ticket criado no Jira com sucesso:', jiraResponse);
       res.status(201).json({ message: 'Ticket criado no Jira', jira: jiraResponse });
     } catch (error) {
-      console.error('--- ERRO FATAL NO HANDLER DA API ---');
-      console.error('Mensagem:', error.message);
-      
-      let statusCode = 500;
-      let errorResponse = { error: 'Ocorreu um erro interno no servidor.' };
-
+      console.error('--- ERRO CAPTURADO NO HANDLER ---');
       if (error.response) {
-        console.error('Resposta do Erro (Axios):', JSON.stringify(error.response.data, null, 2));
-        statusCode = error.response.status || 500;
-        errorResponse = { 
-          message: 'Erro retornado pela API do Jira.',
-          jiraError: error.response.data 
-        };
+        // Erro vindo do Axios (provavelmente do Jira)
+        console.error('Erro de resposta da API externa (Jira). Status:', error.response.status);
+        console.error('Corpo do Erro (Jira):', JSON.stringify(error.response.data, null, 2));
+        res.status(400).json({ 
+          error: "O Jira retornou um erro.",
+          jira_status: error.response.status,
+          jira_response: error.response.data 
+        });
+      } else {
+        // Outro tipo de erro (ex: falha de rede, erro no nosso código)
+        console.error('Erro inesperado:', error.message);
+        res.status(500).json({ error: "Erro interno do servidor.", message: error.message });
       }
-      
-      console.error('Stack Trace:', error.stack);
-      console.error('------------------------------------');
-      res.status(statusCode).json(errorResponse);
     }
   } else {
     console.warn(`Método ${req.method} não é permitido.`);

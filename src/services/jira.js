@@ -21,6 +21,8 @@ export async function createTicket(ticketData) {
     },
   };
 
+  console.log('Enviando para o Jira o seguinte payload:', JSON.stringify(issueData, null, 2));
+
   const endpoint = `${process.env.JIRA_BASE_URL}/rest/api/3/issue`;
   console.log(`Enviando requisição POST para o endpoint do Jira: ${endpoint}`);
 
