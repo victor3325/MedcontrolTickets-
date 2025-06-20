@@ -34,12 +34,22 @@ export default async function handler(req, res) {
     } catch (error) {
       console.error('--- ERRO FATAL NO HANDLER DA API ---');
       console.error('Mensagem:', error.message);
+      
+      let statusCode = 500;
+      let errorResponse = { error: 'Ocorreu um erro interno no servidor.' };
+
       if (error.response) {
         console.error('Resposta do Erro (Axios):', JSON.stringify(error.response.data, null, 2));
+        statusCode = error.response.status || 500;
+        errorResponse = { 
+          message: 'Erro retornado pela API do Jira.',
+          jiraError: error.response.data 
+        };
       }
+      
       console.error('Stack Trace:', error.stack);
       console.error('------------------------------------');
-      res.status(500).json({ error: 'Ocorreu um erro interno no servidor.' });
+      res.status(statusCode).json(errorResponse);
     }
   } else {
     console.warn(`Método ${req.method} não é permitido.`);
