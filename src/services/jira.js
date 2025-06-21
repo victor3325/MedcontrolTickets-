@@ -16,7 +16,21 @@ export async function createTicket(ticketData) {
     fields: {
       project: { key: process.env.JIRA_PROJECT_KEY },
       summary: ticketData.summary || 'Novo ticket do Medcontrol',
-      description: ticketData.description || 'Nenhuma descrição fornecida.',
+      description: {
+        type: 'doc',
+        version: 1,
+        content: [
+          {
+            type: 'paragraph',
+            content: [
+              {
+                type: 'text',
+                text: ticketData.description || 'Nenhuma descrição fornecida.',
+              },
+            ],
+          },
+        ],
+      },
       issuetype: { name: 'Task' },
     },
   };
