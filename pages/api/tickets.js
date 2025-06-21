@@ -1,6 +1,17 @@
 import { createTicket } from '../../src/services/jira';
 
 export default async function handler(req, res) {
+  // ===================== TESTE DE DEPLOY =====================
+  // Se você vir esta mensagem no Postman, o novo código está no ar.
+  res.status(418).json({ 
+    deploy_status: "SUCESSO! O CÓDIGO MAIS RECENTE ESTÁ ATIVO.",
+    message: "Pode remover este teste e fazer o deploy final.",
+    timestamp: new Date().toISOString() 
+  });
+  return; // A execução para aqui para este teste.
+  // =========================================================
+
+  // O código antigo abaixo não será executado durante o teste.
   console.log(`[${new Date().toISOString()}] - Handler iniciado. Método: ${req.method}`);
 
   if (req.method === 'POST') {
