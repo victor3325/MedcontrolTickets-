@@ -32,20 +32,22 @@ export default async function handler(req, res) {
       console.log('Ticket criado no Jira com sucesso:', jiraResponse);
       res.status(201).json({ message: 'Ticket criado no Jira', jira: jiraResponse });
     } catch (error) {
-      console.error('--- ERRO CAPTURADO NO HANDLER ---');
-      if (error.response) {
-        // Erro vindo do Axios (provavelmente do Jira)
-        console.error('Erro de resposta da API externa (Jira). Status:', error.response.status);
-        console.error('Corpo do Erro (Jira):', JSON.stringify(error.response.data, null, 2));
-        res.status(400).json({ 
-          error: "O Jira retornou um erro.",
-          jira_status: error.response.status,
-          jira_response: error.response.data 
+      console.error('--- ERRO CAPTURADO NO HANDLER DA API ---');
+      
+      // Verifica se é o nosso erro customizado vindo do serviço do Jira
+      if (error.jiraResponse) {
+        console.error('Erro detalhado do Jira:', JSON.stringify(error.jiraResponse, null, 2));
+        res.status(error.status || 400).json({
+          message: 'Ocorreu um erro na comunicação com o Jira.',
+          details: error.jiraResponse
         });
       } else {
-        // Outro tipo de erro (ex: falha de rede, erro no nosso código)
-        console.error('Erro inesperado:', error.message);
-        res.status(500).json({ error: "Erro interno do servidor.", message: error.message });
+        // Trata outros erros (rede, código, etc.)
+        console.error('Erro genérico do servidor:', error.message);
+        res.status(500).json({ 
+          message: "Erro interno do servidor.",
+          error: error.message 
+        });
       }
     }
   } else {

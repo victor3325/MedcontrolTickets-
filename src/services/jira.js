@@ -38,14 +38,18 @@ export async function createTicket(ticketData) {
     return response.data;
   } catch (error) {
     console.error('--- ERRO NA COMUNICAÇÃO COM O JIRA ---');
-    console.error('Mensagem:', error.message);
     if (error.response) {
       console.error('Status do Erro:', error.response.status);
       console.error('Dados do Erro:', JSON.stringify(error.response.data, null, 2));
+      // Cria um novo erro mais informativo para ser capturado pelo handler da API
+      const JiraError = new Error('Erro retornado pela API do Jira.');
+      JiraError.status = error.response.status;
+      JiraError.jiraResponse = error.response.data;
+      throw JiraError;
     } else {
-      console.error('O erro não possui um objeto de resposta. Pode ser um problema de rede ou configuração do Axios.');
+      console.error('Erro de rede ou configuração do Axios:', error.message);
+      // Mantém o erro original para problemas de rede
+      throw error;
     }
-    console.error('------------------------------------');
-    throw error;
   }
 } 
