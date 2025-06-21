@@ -3,18 +3,35 @@ import axios from 'axios';
 export async function createTicket(ticketData) {
   console.log('--- Serviço jira.js: Iniciando createTicket ---');
   
-  if (!process.env.JIRA_EMAIL || !process.env.JIRA_API_TOKEN || !process.env.JIRA_BASE_URL || !process.env.JIRA_PROJECT_KEY) {
+  const jiraEmail = process.env.JIRA_EMAIL;
+  const jiraToken = process.env.JIRA_API_TOKEN;
+  const jiraBaseUrl = process.env.JIRA_BASE_URL;
+  const jiraProjectKey = process.env.JIRA_PROJECT_KEY;
+
+  // ===================== LOGS DE DEPURAÇÃO FINAL =====================
+  console.log(`DEBUG: JIRA_EMAIL = ${jiraEmail}`);
+  console.log(`DEBUG: JIRA_PROJECT_KEY = ${jiraProjectKey}`);
+  if (jiraToken) {
+    console.log(`DEBUG: Comprimento do Token = ${jiraToken.length}`);
+    console.log(`DEBUG: Token Começa Com = '${jiraToken.substring(0, 5)}...'`);
+    console.log(`DEBUG: Token Termina Com = '...${jiraToken.substring(jiraToken.length - 5)}'`);
+  } else {
+    console.log('DEBUG: JIRA_API_TOKEN não foi definido!');
+  }
+  // =================================================================
+
+  if (!jiraEmail || !jiraToken || !jiraBaseUrl || !jiraProjectKey) {
     console.error('ERRO CRÍTICO: Uma ou mais variáveis de ambiente do Jira não estão configuradas!');
     throw new Error('As credenciais ou configurações do Jira não foram encontradas nas variáveis de ambiente.');
   }
 
-  console.log('Variáveis de ambiente do Jira carregadas. JIRA_PROJECT_KEY:', process.env.JIRA_PROJECT_KEY);
+  console.log('Variáveis de ambiente do Jira carregadas. JIRA_PROJECT_KEY:', jiraProjectKey);
 
-  const auth = Buffer.from(`${process.env.JIRA_EMAIL}:${process.env.JIRA_API_TOKEN}`).toString('base64');
+  const auth = Buffer.from(`${jiraEmail}:${jiraToken}`).toString('base64');
 
   const issueData = {
     fields: {
-      project: { key: process.env.JIRA_PROJECT_KEY },
+      project: { key: jiraProjectKey },
       summary: ticketData.summary || 'Novo ticket do Medcontrol',
       description: {
         type: 'doc',
@@ -37,7 +54,7 @@ export async function createTicket(ticketData) {
 
   console.log('Enviando para o Jira o seguinte payload:', JSON.stringify(issueData, null, 2));
 
-  const endpoint = `${process.env.JIRA_BASE_URL}/rest/api/3/issue`;
+  const endpoint = `${jiraBaseUrl}/rest/api/3/issue`;
   console.log(`Enviando requisição POST para o endpoint do Jira: ${endpoint}`);
 
   try {
